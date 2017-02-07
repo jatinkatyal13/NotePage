@@ -1,5 +1,6 @@
 package com.example.jatin.notepage;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,8 +27,12 @@ public class MainActivity extends AppCompatActivity {
         //content
         setContentView(R.layout.activity_main);
 
+        Intent intent = new Intent(getApplicationContext(), DisplayActivity.class);
+        intent.putExtra("note_id", 2);
+        startActivity(intent);
 
-        //seeting up recycler view
+
+        //setting up recycler view
         recyclerView = (RecyclerView)findViewById(R.id.list_recycler);
 
         mainListAdapter = new MainListAdapter(notes);
