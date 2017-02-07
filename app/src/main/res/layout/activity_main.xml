@@ -7,74 +7,10 @@
     android:layout_height="match_parent"
     tools:context="com.example.jatin.notepage.MainActivity">
 
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp">
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/card_view_top"
-                card_view:cardCornerRadius="4dp"
-                card_view:cardElevation="14dp"
-                android:clickable="true"
-                android:descendantFocusability="blocksDescendants">
-                <LinearLayout
-                    android:padding="8dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:orientation="vertical">
-                    <TextView
-                        android:text="TextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/user_textview" />
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="100">
-
-                        <android.support.design.widget.TextInputLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="70">
-
-                            <EditText
-                                android:id="@+id/title"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Title" />
-
-                        </android.support.design.widget.TextInputLayout>
-
-                        <Button
-                            android:layout_height="wrap_content"
-                            android:layout_width="0dp"
-                            android:text="Add"
-                            android:layout_weight="30"/>
-
-                    </LinearLayout>
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-        </LinearLayout>
-
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_recycler"
             android:scrollbars="vertical"
             android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:layout_gravity="bottom|fill_vertical|end" />
-
-
-    </LinearLayout>
+            android:layout_width="match_parent" />
 
 </RelativeLayout>
