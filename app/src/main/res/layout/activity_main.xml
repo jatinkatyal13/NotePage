@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/card_view_top"
                 card_view:cardCornerRadius="4dp"
-                card_view:elevation="14dp"
+                card_view:cardElevation="14dp"
                 android:clickable="true"
                 android:descendantFocusability="blocksDescendants">
                 <LinearLayout
@@ -39,11 +39,13 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:weightSum="100">
 
                         <android.support.design.widget.TextInputLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="70">
 
                             <EditText
                                 android:id="@+id/title"
@@ -55,8 +57,9 @@
 
                         <Button
                             android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:text="Add"/>
+                            android:layout_width="0dp"
+                            android:text="Add"
+                            android:layout_weight="30"/>
 
                     </LinearLayout>
                 </LinearLayout>
@@ -69,7 +72,7 @@
             android:scrollbars="vertical"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:layout_gravity="fill" />
+            android:layout_gravity="bottom|fill_vertical|end" />
 
 
     </LinearLayout>
