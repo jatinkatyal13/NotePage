@@ -2,31 +2,30 @@ package com.example.jatin.notepage;
 
 public class Note {
 
-    private String title, data;
+    private int id;
+    private String message;
 
     Note(){}
 
-    Note(String title, String data){
-        this.title = title;
-        this.data = data;
+    Note(String message, int id){
+        this.message = message;
+        this.id = id;
     }
 
     //getter methods
-    public String getTitle(){
-        return this.title;
+    public String getMessage(){
+        return this.message;
     }
-
-    public String getData(){
-        return this.data;
+    public int getId(){
+        return this.id;
     }
 
     //setter methods
-    public void setTitle(String title){
-        this.title = title;
+    public void setMessage(String message){
+        this.message = message;
     }
-
-    public void setData(String data){
-        this.data = data;
+    public void setId(int id){
+        this.id = id;
     }
 
 }

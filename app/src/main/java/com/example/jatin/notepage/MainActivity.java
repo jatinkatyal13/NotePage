@@ -16,7 +16,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<Note> notes = new ArrayList<>();
+    private List<Title> titles = new ArrayList<>();
     private RecyclerView recyclerView;
     private MainListAdapter mainListAdapter;
 
@@ -27,25 +27,30 @@ public class MainActivity extends AppCompatActivity {
         //content
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(getApplicationContext(), DisplayActivity.class);
-        intent.putExtra("note_id", 2);
-        startActivity(intent);
+//        Intent intent = new Intent(getApplicationContext(), DisplayActivity.class);
+//        intent.putExtra("note_id", 2);
+//        startActivity(intent);
 
 
         //setting up recycler view
         recyclerView = (RecyclerView)findViewById(R.id.list_recycler);
 
-        mainListAdapter = new MainListAdapter(notes);
+        mainListAdapter = new MainListAdapter(titles);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mainListAdapter);
 
         //populating notes list
-        notes.add(new Note("Title1", "Data1"));
-        notes.add(new Note("Title2", "Data2"));
-        notes.add(new Note("Title3", "Data3"));
-        notes.add(new Note("Title4", "Data4"));
-        notes.add(new Note("Title5", "Data5"));
+        Database db = new Database(this);
+        db.addTitle("title1");
+        db.addTitle("title2");
+        db.addTitle("title3");
+        try {
+            db.addNote("something", 1);
+        } catch (Database.DatabaseException e) {
+            e.printStackTrace();
+        }
+        titles = db.getTitles();
 
         //updating list
         mainListAdapter.notifyDataSetChanged();
@@ -55,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     //Adapter for the list
     public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> {
 
-        private List<Note> notes;
+        private List<Title> titles;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -70,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //constructor
-        public MainListAdapter(List<Note> notes){
-            this.notes = notes;
+        public MainListAdapter(List<Title> titles){
+            this.titles = titles;
         }
 
         // Implemented methods
@@ -83,14 +88,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(MainListAdapter.ViewHolder holder, int position) {
-            Note note = notes.get(position);
-            holder.title.setText(note.getTitle());
-            holder.data.setText(note.getData());
+            Title title = titles.get(position);
+            holder.title.setText(title.getTitle());
+            holder.data.setText(title.getLatestMessage());
         }
 
         @Override
         public int getItemCount() {
-            return notes.size();
+            return titles.size();
         }
     }
 
