@@ -8,7 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +35,49 @@ public class DisplayActivity extends AppCompatActivity {
         if (note_id == -1) this.finish();
 
         //populating the messages according to note_id
+        recyclerView = (RecyclerView)findViewById(R.id.list_recycler);
         displayListAdapter = new DisplayListAdapter(messages);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(displayListAdapter);
+
+        //adding data to list
         messages.add("Something");
         messages.add("Something2");
         messages.add("something3");
 
+        //updating the list
         displayListAdapter.notifyDataSetChanged();
 
+        //scroll to the newest note
+        scrollToBottom();
+
+
+        //edit text reference of message box
+        final EditText message = (EditText) findViewById(R.id.message);
+        ImageView button = (ImageView) findViewById(R.id.send_button);
+        button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                String note = message.getText().toString();
+                note.trim();
+                addNote(note);
+                message.setText("");
+
+            }
+        });
+
+    }
+
+    private void addNote(String note){
+        messages.add(note);
+        displayListAdapter.notifyDataSetChanged();
+        scrollToBottom();
+    }
+
+    private void scrollToBottom(){
+        recyclerView.canScrollVertically(0);
     }
 
     public class DisplayListAdapter extends RecyclerView.Adapter<DisplayListAdapter.ViewHolder> {
@@ -49,11 +85,11 @@ public class DisplayActivity extends AppCompatActivity {
         List<String> messages = new ArrayList<>();
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            TextView message;
+            public TextView message;
 
             public ViewHolder(View itemView) {
                 super(itemView);
-                message = (TextView)itemView.findViewById(R.id.list_recycler);
+                message = (TextView)itemView.findViewById(R.id.message);
             }
         }
 
