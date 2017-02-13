@@ -137,8 +137,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+
                 dialog.show();
                 break;
+            case R.id.settings:
+                Intent settingdisplay = new Intent(MainActivity.this , settings.class);
+                startActivity(settingdisplay);
         }
         return true;
     }
