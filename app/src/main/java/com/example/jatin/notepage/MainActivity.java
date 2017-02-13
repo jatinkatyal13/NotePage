@@ -5,10 +5,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Title> titles = new ArrayList<>();
     private RecyclerView recyclerView;
     private MainListAdapter mainListAdapter;
+    private Database db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         //content
         setContentView(R.layout.activity_main);
 
-//        Intent intent = new Intent(getApplicationContext(), DisplayActivity.class);
+//        Intent intent = new Intent(MainActivity.this, DisplayActivity.class);
 //        intent.putExtra("note_id", 2);
 //        startActivity(intent);
 
@@ -41,21 +44,25 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mainListAdapter);
 
         //populating notes list
-        Database db = new Database(this);
-        db.addTitle("title1");
-        db.addTitle("title2");
-        db.addTitle("title3");
-        try {
-            db.addNote("something", 1);
-        } catch (Database.DatabaseException e) {
-            e.printStackTrace();
-        }
+        db = new Database(this);
         titles = db.getTitles();
+//        Log.e("jatin", titles.get(0).getTitle());
+
+        recyclerView.setAdapter(new MainListAdapter(titles));
+
 
         //updating list
-        mainListAdapter.notifyDataSetChanged();
+//        mainListAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        titles = db.getTitles();
+//        Log.e("jatin", titles.get(0).getTitle());
+
+        recyclerView.setAdapter(new MainListAdapter(titles));
+    }
 
     //Adapter for the list
     public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> {
@@ -66,11 +73,13 @@ public class MainActivity extends AppCompatActivity {
 
             //getting the Views from the layout file
             public TextView title, data;
+            public LinearLayout list_item;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 title = (TextView)itemView.findViewById(R.id.title);
                 data = (TextView)itemView.findViewById(R.id.data);
+                list_item = (LinearLayout)itemView.findViewById(R.id.list_item);
             }
         }
 
@@ -88,9 +97,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(MainListAdapter.ViewHolder holder, int position) {
-            Title title = titles.get(position);
+            final Title title = titles.get(position);
             holder.title.setText(title.getTitle());
             holder.data.setText(title.getLatestMessage());
+            holder.list_item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent (MainActivity.this, DisplayActivity.class);
+                    intent.putExtra("title_id", title.getId());
+                    startActivity(intent);
+                }
+            });
         }
 
         @Override

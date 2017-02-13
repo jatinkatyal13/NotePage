@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class DisplayActivity extends AppCompatActivity {
 
-    private List<String> messages = new ArrayList<>();
+    private List<Note> messages = new ArrayList<>();
     private RecyclerView recyclerView;
     private DisplayListAdapter displayListAdapter;
 
@@ -29,10 +30,10 @@ public class DisplayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display);
 
         //getting the note_id in the variable
-        int note_id = getIntent().getIntExtra("note_id", -1);
+        final int title_id = getIntent().getIntExtra("title_id", -1);
 
         //if there is no such id move back to previous activity
-        if (note_id == -1) this.finish();
+        if (title_id == -1) this.finish();
 
         //populating the messages according to note_id
         recyclerView = (RecyclerView)findViewById(R.id.list_recycler);
@@ -43,12 +44,12 @@ public class DisplayActivity extends AppCompatActivity {
         recyclerView.setAdapter(displayListAdapter);
 
         //adding data to list
-        messages.add("Something");
-        messages.add("Something2");
-        messages.add("something3");
+        final Database db = new Database(DisplayActivity.this);
+        messages = db.getNotes(title_id);
 
         //updating the list
-        displayListAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(new DisplayListAdapter(messages));
+        //displayListAdapter.notifyDataSetChanged();
 
         //scroll to the newest note
         scrollToBottom();
@@ -60,9 +61,9 @@ public class DisplayActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                String note = message.getText().toString();
-                note.trim();
-                addNote(note);
+                String data = message.getText().toString();
+                data.trim();
+                addNote(new Note(data, title_id), db);
                 message.setText("");
 
             }
@@ -70,19 +71,27 @@ public class DisplayActivity extends AppCompatActivity {
 
     }
 
-    private void addNote(String note){
-        messages.add(note);
+    private void addNote(Note note, Database db){
+        try{
+            db.addNote(note.getMessage(), note.getTitleId());
+            messages.add(note);
+
+        } catch (Database.DatabaseException e){
+            Log.e("jaitn", "not added");
+        }
+
         displayListAdapter.notifyDataSetChanged();
         scrollToBottom();
     }
 
     private void scrollToBottom(){
-        recyclerView.canScrollVertically(0);
+        recyclerView.scrollToPosition(0);
+
     }
 
     public class DisplayListAdapter extends RecyclerView.Adapter<DisplayListAdapter.ViewHolder> {
 
-        List<String> messages = new ArrayList<>();
+        List<Note> messages = new ArrayList<>();
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView message;
@@ -93,7 +102,7 @@ public class DisplayActivity extends AppCompatActivity {
             }
         }
 
-        public DisplayListAdapter(List<String> messages){
+        public DisplayListAdapter(List<Note> messages){
             this.messages = messages;
         }
 
@@ -105,7 +114,7 @@ public class DisplayActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(DisplayListAdapter.ViewHolder holder, int position) {
-            holder.message.setText(messages.get(position));
+            holder.message.setText(messages.get(position).getMessage());
         }
 
         @Override

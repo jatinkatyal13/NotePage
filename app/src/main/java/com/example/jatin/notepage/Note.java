@@ -16,7 +16,7 @@ public class Note {
     public String getMessage(){
         return this.message;
     }
-    public int getId(){
+    public int getTitleId(){
         return this.id;
     }
 
@@ -24,7 +24,7 @@ public class Note {
     public void setMessage(String message){
         this.message = message;
     }
-    public void setId(int id){
+    public void setTitleId(int id){
         this.id = id;
     }
 

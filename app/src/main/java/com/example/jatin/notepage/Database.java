@@ -2,7 +2,6 @@ package com.example.jatin.notepage;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -119,14 +118,13 @@ public class Database extends SQLiteOpenHelper{
         SQLiteDatabase database = this.getReadableDatabase();
         List<Title> list = new ArrayList<>();
 
-        String sql = "SELECT Titles.id, title, max(Notes.id), message FROM Titles, Notes WHERE Titles.id = Notes.title_id GROUP BY title_id;";
+        String sql = "select Titles.id, title, max(Notes.id), message From Titles Left Join Notes on Titles.id = Notes.title_id group by Titles.id order by Titles.id;";
         Cursor resultSet = database.rawQuery(sql, null);
 
-        int size = resultSet.getCount();
 
-        for (int i=0; i<size; i++){
+        while(resultSet.moveToNext()){
             list.add(new Title(resultSet.getString(1), resultSet.getInt(0), resultSet.getString(3)));
-            resultSet.moveToNext();
+            Log.e("jatin", "added " + resultSet.getString(1));
         }
 
         return list;
@@ -137,14 +135,12 @@ public class Database extends SQLiteOpenHelper{
         SQLiteDatabase database = this.getReadableDatabase();
         List<Note> list = new ArrayList<>();
 
-        String sql = "SELECT id, message FROM Notes WHERE title_id = " + title_id;
+        String sql = "SELECT title_id, message FROM Notes WHERE title_id = " + title_id;
         Cursor resultSet = database.rawQuery(sql, null);
 
-        int size = resultSet.getCount();
-
-        for (int i=0; i<size; i++){
-            list.add(new Note(resultSet.getString(0), resultSet.getInt(1)));
-            resultSet.moveToNext();
+        while (resultSet.moveToNext()){
+            list.add(new Note(resultSet.getString(1), resultSet.getInt(0)));
+            Log.e("jatin", "added note" + resultSet.getString(1));
         }
 
         return list;
