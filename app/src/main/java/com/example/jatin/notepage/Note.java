@@ -7,16 +7,20 @@ public class Note {
 
     Note(){}
 
-    Note(String message, int id){
+    Note(String message){
         this.message = message;
+    }
+
+    Note(String message, int id){
         this.id = id;
+        this.message = message;
     }
 
     //getter methods
     public String getMessage(){
         return this.message;
     }
-    public int getTitleId(){
+    public int getId(){
         return this.id;
     }
 
@@ -24,7 +28,7 @@ public class Note {
     public void setMessage(String message){
         this.message = message;
     }
-    public void setTitleId(int id){
+    public void setId(int id){
         this.id = id;
     }
 

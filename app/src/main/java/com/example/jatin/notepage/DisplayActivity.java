@@ -63,17 +63,18 @@ public class DisplayActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String data = message.getText().toString();
                 data.trim();
-                addNote(new Note(data, title_id), db);
-                message.setText("");
-
+                if (data != "" && data.length()<200){
+                    addNote(new Note(data), title_id, db);
+                    message.setText("");
+                }
             }
         });
 
     }
 
-    private void addNote(Note note, Database db){
+    private void addNote(Note note, int title_id, Database db){
         try{
-            db.addNote(note.getMessage(), note.getTitleId());
+            db.addNote(note.getMessage(), title_id);
             messages.add(note);
 
         } catch (Database.DatabaseException e){
@@ -85,7 +86,7 @@ public class DisplayActivity extends AppCompatActivity {
     }
 
     private void scrollToBottom(){
-        recyclerView.scrollToPosition(0);
+        recyclerView.scrollToPosition(recyclerView.getAdapter().getItemCount());
 
     }
 

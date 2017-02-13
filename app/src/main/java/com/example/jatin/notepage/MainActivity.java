@@ -1,17 +1,26 @@
 package com.example.jatin.notepage;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private MainListAdapter mainListAdapter;
     private Database db;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,29 +55,94 @@ public class MainActivity extends AppCompatActivity {
 
         //populating notes list
         db = new Database(this);
-        titles = db.getTitles();
-//        Log.e("jatin", titles.get(0).getTitle());
-
-        recyclerView.setAdapter(new MainListAdapter(titles));
-
 
         //updating list
 //        mainListAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    public void updateList(){
         titles = db.getTitles();
 //        Log.e("jatin", titles.get(0).getTitle());
 
-        recyclerView.setAdapter(new MainListAdapter(titles));
+        mainListAdapter = new MainListAdapter(titles);
+
+        recyclerView.setAdapter(mainListAdapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateList();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.e("jatin", ""+mainListAdapter.isSelectionMode());
+        if (mainListAdapter.isSelectionMode()){
+            mainListAdapter.onBackPress();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
+        this.menu = menu;
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.delete:
+                List<Title> selected = mainListAdapter.getSelectedTitles();
+                int size = selected.size();
+                for (int i=0; i<size; i++){
+                    db.delTitle(selected.get(i).getId());
+                }
+                mainListAdapter.clearSelection();
+                mainListAdapter.setSelectionMode(false);
+                updateList();
+                break;
+            case R.id.add:
+                final Dialog dialog = new Dialog(this, R.style.DialogTheme);
+                dialog.setContentView(R.layout.add_popup_layout);
+                Button add = (Button)dialog.findViewById(R.id.add);
+                add.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String title = ((EditText) dialog.findViewById(R.id.title)).getText().toString();
+                        title.trim();
+                        if (title!="" && title.length() < 200){
+                            db.addTitle(title);
+                            updateList();
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Invalid Title", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                dialog.show();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        onStart();
     }
 
     //Adapter for the list
     public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> {
 
         private List<Title> titles;
+
+        private boolean selectionMode = false;
+        private List<Title> selected= new ArrayList<>();
+        private List<LinearLayout> layouts = new ArrayList<>();
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -83,6 +158,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        public boolean isSelectionMode(){
+            return selectionMode;
+        }
+
+        public List<Title> getSelectedTitles(){
+            return selected;
+        }
+
+        public void clearSelection(){
+            selected.clear();
+        }
+
+        public void setSelectionMode(boolean mode){
+            selectionMode = mode;
+            MenuItem delete = MainActivity.this.menu.findItem(R.id.delete);
+            if (mode){
+                delete.setVisible(true);
+            } else {
+                delete.setVisible(false);
+            }
+        }
+
+        public void onBackPress(){
+            //clear all the selection when back is pressed
+            clearSelection();
+            int size = layouts.size();
+            for (int i=0; i<size; i++){
+                layouts.get(i).setBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
+            setSelectionMode(false);
+        }
+
         //constructor
         public MainListAdapter(List<Title> titles){
             this.titles = titles;
@@ -96,16 +203,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(MainListAdapter.ViewHolder holder, int position) {
+        public void onBindViewHolder(final MainListAdapter.ViewHolder holder, int position) {
             final Title title = titles.get(position);
             holder.title.setText(title.getTitle());
             holder.data.setText(title.getLatestMessage());
+            layouts.add(holder.list_item);
+            holder.list_item.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (selected.contains(title)){
+                        return false;
+                    } else {
+                        setSelectionMode(true);
+                        holder.list_item.setBackgroundColor(Color.parseColor("#FFC8F482"));
+                        selected.add(title);
+                        return true;
+                    }
+                }
+            });
             holder.list_item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent (MainActivity.this, DisplayActivity.class);
-                    intent.putExtra("title_id", title.getId());
-                    startActivity(intent);
+                    if (selectionMode){
+                        if (selected.contains(title)){
+                            selected.remove(title);
+                            holder.list_item.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                            if(selected.size() == 0) setSelectionMode(false);
+                        } else {
+                            holder.list_item.setBackgroundColor(Color.parseColor("#FFC8F482"));
+                            selected.add(title);
+                        }
+                    } else {
+                        Intent intent = new Intent (MainActivity.this, DisplayActivity.class);
+                        intent.putExtra("title_id", title.getId());
+                        startActivity(intent);
+                    }
                 }
             });
         }

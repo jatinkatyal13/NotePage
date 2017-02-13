@@ -49,6 +49,7 @@ public class Database extends SQLiteOpenHelper{
     }
 
     //initializing the database
+    //register tables here
     public void init(SQLiteDatabase database){
         String sql;
 
@@ -135,7 +136,7 @@ public class Database extends SQLiteOpenHelper{
         SQLiteDatabase database = this.getReadableDatabase();
         List<Note> list = new ArrayList<>();
 
-        String sql = "SELECT title_id, message FROM Notes WHERE title_id = " + title_id;
+        String sql = "SELECT id, message FROM Notes WHERE title_id = " + title_id;
         Cursor resultSet = database.rawQuery(sql, null);
 
         while (resultSet.moveToNext()){
@@ -144,6 +145,34 @@ public class Database extends SQLiteOpenHelper{
         }
 
         return list;
+    }
+
+    public boolean delTitle(int id) {
+
+        SQLiteDatabase database = this.getWritableDatabase();
+        String sql;
+        try{
+            sql = "DELETE FROM Titles WHERE id = " + id;
+            database.execSQL(sql);
+            sql = "DELETE FROM Notes WHERE title_id = " + id;
+            database.execSQL(sql);
+            return true;
+        } catch (Exception e) {
+            return false;
+
+        }
+    }
+
+    public boolean delNote(int id){
+        SQLiteDatabase database = this.getWritableDatabase();
+        String sql;
+        try{
+            sql = "DELETE FROM Notes WHERE id = " + id;
+            database.execSQL(sql);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
     }
 
 }
