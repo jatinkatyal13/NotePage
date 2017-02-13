@@ -1,8 +1,10 @@
 package com.example.jatin.notepage;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -96,14 +98,26 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.delete:
-                List<Title> selected = mainListAdapter.getSelectedTitles();
-                int size = selected.size();
-                for (int i=0; i<size; i++){
-                    db.delTitle(selected.get(i).getId());
-                }
-                mainListAdapter.clearSelection();
-                mainListAdapter.setSelectionMode(false);
-                updateList();
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Delete")
+                        .setMessage("Are you sure you want to delete selected notes?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                List<Title> selected = mainListAdapter.getSelectedTitles();
+                                int size = selected.size();
+                                for (int j=0; j<size; j++){
+                                    db.delTitle(selected.get(j).getId());
+                                }
+                                mainListAdapter.clearSelection();
+                                mainListAdapter.setSelectionMode(false);
+                                updateList();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .show();
                 break;
             case R.id.add:
                 final Dialog dialog = new Dialog(this, R.style.DialogTheme);

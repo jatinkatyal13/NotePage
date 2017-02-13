@@ -1,14 +1,19 @@
 package com.example.jatin.notepage;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -96,10 +101,14 @@ public class DisplayActivity extends AppCompatActivity {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView message;
+            public CheckBox done;
+            public CardView cardView;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 message = (TextView)itemView.findViewById(R.id.message);
+                done = (CheckBox)itemView.findViewById(R.id.done);
+                cardView = (CardView)itemView.findViewById(R.id.card);
             }
         }
 
@@ -109,13 +118,24 @@ public class DisplayActivity extends AppCompatActivity {
 
         @Override
         public DisplayListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.display_list_layout, parent, false);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.display_list_layout, parent, false);
             return new ViewHolder(itemView);
         }
 
         @Override
-        public void onBindViewHolder(DisplayListAdapter.ViewHolder holder, int position) {
+        public void onBindViewHolder(final DisplayListAdapter.ViewHolder holder, int position) {
             holder.message.setText(messages.get(position).getMessage());
+            holder.done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (holder.done.isSelected()){
+                        holder.message.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+                        holder.message.setText(holder.message.getText().toString());
+                    } else {
+                        holder.message.setPaintFlags(0);
+                    }
+                }
+            });
         }
 
         @Override
