@@ -17,7 +17,7 @@
         </activity>
 
         <activity android:name=".settings"></activity>
-        <activity android:name=".SeachableActivity">
+        <activity android:name=".SearchableActivity">
             <intent-filter  >
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
