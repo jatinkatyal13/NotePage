@@ -12,18 +12,14 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -152,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
                 break;
             case R.id.settings:
-                Intent settingdisplay = new Intent(MainActivity.this , settings.class);
+                Intent settingdisplay = new Intent(MainActivity.this , Settings.class);
                 startActivity(settingdisplay);
                 break;
 
