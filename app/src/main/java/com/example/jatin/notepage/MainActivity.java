@@ -147,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.search:
                 MenuItem search_bar =  MainActivity.this.menu.findItem(R.id.search_bar);
-                search_bar.setVisible(true);
-                MenuItem
+                setContentView(R.xml.searchable);
+
                 break;
             case R.id.search_bar :
 
