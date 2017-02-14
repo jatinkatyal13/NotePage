@@ -15,7 +15,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DisplayActivity"></activity>
+
         <activity android:name=".settings"></activity>
         <activity android:name=".SeachableActivity">
             <intent-filter  >
@@ -26,6 +26,8 @@
                 android:resource="@xml/searchable"/>
 
         </activity>
+        <activity android:name=".DisplayActivity" android:parentActivityName=".MainActivity"></activity>
+
     </application>
 
 </manifest>

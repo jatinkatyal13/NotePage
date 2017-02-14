@@ -1,8 +1,11 @@
 package com.example.jatin.notepage;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -10,12 +13,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +33,9 @@ public class DisplayActivity extends AppCompatActivity {
     private List<Note> messages = new ArrayList<>();
     private RecyclerView recyclerView;
     private DisplayListAdapter displayListAdapter;
+    private Menu menu;
+    private Database db;
+    private int title_id;
 
 
     @Override
@@ -34,8 +43,10 @@ public class DisplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         //getting the note_id in the variable
-        final int title_id = getIntent().getIntExtra("title_id", -1);
+        title_id = getIntent().getIntExtra("title_id", -1);
 
         //if there is no such id move back to previous activity
         if (title_id == -1) this.finish();
@@ -49,11 +60,15 @@ public class DisplayActivity extends AppCompatActivity {
         recyclerView.setAdapter(displayListAdapter);
 
         //adding data to list
-        final Database db = new Database(DisplayActivity.this);
+        db = new Database(DisplayActivity.this);
         messages = db.getNotes(title_id);
 
+        //updating title bar
+        getSupportActionBar().setTitle(db.getTitle(title_id).getTitle());
+
         //updating the list
-        recyclerView.setAdapter(new DisplayListAdapter(messages));
+        displayListAdapter = new DisplayListAdapter(messages);
+        recyclerView.setAdapter(displayListAdapter);
         //displayListAdapter.notifyDataSetChanged();
 
         //scroll to the newest note
@@ -68,13 +83,66 @@ public class DisplayActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String data = message.getText().toString();
                 data.trim();
-                if (data != "" && data.length()<200){
+                if (!data.equals("") && data.length()<200){
                     addNote(new Note(data), title_id, db);
                     message.setText("");
                 }
             }
         });
 
+    }
+
+    public void updateList(){
+        List<Note> messages = db.getNotes(title_id);
+        displayListAdapter= new DisplayListAdapter(messages);
+        recyclerView.setAdapter(displayListAdapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (displayListAdapter.isSelectionMode()){
+            displayListAdapter.onBackPress();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_display_activity, menu);
+        this.menu = menu;
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.delete:
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Delete")
+                        .setMessage("Are you sure you want to delete selected messages")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                List<Note> notes = displayListAdapter.getSelected();
+                                int size = notes.size();
+                                for (int j=0; j<size; j++){
+                                    db.delNote(notes.get(j).getId());
+                                }
+                                displayListAdapter.setSelectionMode(false);
+                                updateList();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .show();
+                break;
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                break;
+        }
+        return true;
     }
 
     private void addNote(Note note, int title_id, Database db){
@@ -86,7 +154,7 @@ public class DisplayActivity extends AppCompatActivity {
             Log.e("jaitn", "not added");
         }
 
-        displayListAdapter.notifyDataSetChanged();
+        updateList();
         scrollToBottom();
     }
 
@@ -99,21 +167,55 @@ public class DisplayActivity extends AppCompatActivity {
 
         List<Note> messages = new ArrayList<>();
 
+        private boolean selectionMode = false;
+        private List<Note> selected = new ArrayList<>();
+        private List<LinearLayout> cards = new ArrayList<>();
+
         public class ViewHolder extends RecyclerView.ViewHolder {
             public TextView message;
-            public CheckBox done;
-            public CardView cardView;
+            public LinearLayout cardLayout;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 message = (TextView)itemView.findViewById(R.id.message);
-                done = (CheckBox)itemView.findViewById(R.id.done);
-                cardView = (CardView)itemView.findViewById(R.id.card);
+                cardLayout = (LinearLayout) itemView.findViewById(R.id.card_layout);
+                cards.add(cardLayout);
             }
         }
 
         public DisplayListAdapter(List<Note> messages){
             this.messages = messages;
+        }
+
+        public void setSelectionMode(boolean mode){
+            selectionMode = mode;
+            MenuItem item = DisplayActivity.this.menu.findItem(R.id.delete);
+            if (mode){
+                item.setVisible(true);
+            } else {
+                item.setVisible(false);
+                clearSelection();
+            }
+        }
+
+        public void onBackPress(){
+            int size = cards.size();
+            for (int i=0; i<size; i++){
+                cards.get(i).setBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
+            setSelectionMode(false);
+        }
+
+        public void clearSelection(){
+            selected.clear();
+        }
+
+        public List<Note> getSelected(){
+            return selected;
+        }
+
+        public boolean isSelectionMode(){
+            return selectionMode;
         }
 
         @Override
@@ -123,16 +225,36 @@ public class DisplayActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(final DisplayListAdapter.ViewHolder holder, int position) {
+        public void onBindViewHolder(final DisplayListAdapter.ViewHolder holder, final int position) {
             holder.message.setText(messages.get(position).getMessage());
-            holder.done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            holder.cardLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (holder.done.isSelected()){
-                        holder.message.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
-                        holder.message.setText(holder.message.getText().toString());
+                public void onClick(View view) {
+                    if (selectionMode){
+                        if (selected.contains(messages.get(position))){
+                            Log.e("jaitn","contains this note");
+                            selected.remove(messages.get(position));
+                            holder.cardLayout.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                            if (selected.size() == 0) setSelectionMode(false);
+                        } else {
+                            selected.add(messages.get(position));
+                            holder.cardLayout.setBackgroundColor(Color.parseColor("#FFC8F482"));
+                        }
                     } else {
-                        holder.message.setPaintFlags(0);
+                        return;
+                    }
+                }
+            });
+            holder.cardLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (!selectionMode){
+                        setSelectionMode(true);
+                        selected.add(messages.get(position));
+                        holder.cardLayout.setBackgroundColor(Color.parseColor("#FFC8F482"));
+                        return true;
+                    } else {
+                        return false;
                     }
                 }
             });

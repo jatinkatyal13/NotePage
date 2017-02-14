@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Log.e("jatin", ""+mainListAdapter.isSelectionMode());
         if (mainListAdapter.isSelectionMode()){
             mainListAdapter.onBackPress();
         } else {
