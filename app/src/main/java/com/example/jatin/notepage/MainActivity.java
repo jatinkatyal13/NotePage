@@ -1,6 +1,8 @@
 package com.example.jatin.notepage;
 
 import android.app.Dialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,11 +74,20 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mainListAdapter);
     }
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
         updateList();
     }
+    @Override
+    public boolean onSearchRequested(){
+        //pauseSomeStuff();
+        return super.onSearchRequested();
+    }
+
+
 
     @Override
     public void onBackPressed() {
@@ -147,7 +159,9 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.search:
                 MenuItem search_bar =  MainActivity.this.menu.findItem(R.id.search_bar);
-                setContentView(R.xml.searchable);
+                search_bar.setVisible(true);
+                SearchManager searchmanager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+                SearchView searchview =(SearchView) menu.findItem(R.id.search).getActionView();
 
                 break;
             case R.id.search_bar :
