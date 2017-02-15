@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 /**
  * Created by present on 2/14/17.
@@ -21,6 +22,7 @@ public class SearchableActivity extends AppCompatActivity
         Intent intent = getIntent();
         if(intent.ACTION_SEARCH.equals(intent.getAction())){
             String[] query = intent.getStringArrayExtra(SearchManager.QUERY);
+            Log.i("query is " , query.toString());
          //   domysearch(query);
         }
 

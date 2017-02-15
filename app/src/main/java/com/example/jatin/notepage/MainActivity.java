@@ -158,17 +158,26 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.search:
-                MenuItem search_bar =  MainActivity.this.menu.findItem(R.id.search_bar);
-                //search_bar.setVisible(true);
                 // assumes the current activity is the searchable activity
                 searchview.setSearchableInfo(searchmanager.getSearchableInfo(getComponentName()));
                 searchview.setIconifiedByDefault(false);
+                searchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
 
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+
+                        titles = db.getTitles(newText);
+                        mainListAdapter = new MainListAdapter(titles);
+                        recyclerView.setAdapter(mainListAdapter);
+
+                        return true;
+                    }
+                });
                 break;
-            case R.id.search_bar :
-
-                break;
-
 
         }
         return true;
