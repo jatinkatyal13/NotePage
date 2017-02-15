@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private MainListAdapter mainListAdapter;
     private Database db;
     private Menu menu;
+    SearchManager searchmanager ;
+    SearchView searchview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         this.menu = menu;
+        // set the search view and the searchable menu config
+         searchmanager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+         searchview =(SearchView) menu.findItem(R.id.search).getActionView();
         return true;
     }
 
@@ -154,10 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.search:
                 MenuItem search_bar =  MainActivity.this.menu.findItem(R.id.search_bar);
-                search_bar.setVisible(true);
-                // set the search view and the searchable menu config
-                SearchManager searchmanager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-                SearchView searchview =(SearchView) menu.findItem(R.id.search).getActionView();
+                //search_bar.setVisible(true);
                 // assumes the current activity is the searchable activity
                 searchview.setSearchableInfo(searchmanager.getSearchableInfo(getComponentName()));
                 searchview.setIconifiedByDefault(false);
