@@ -1,0 +1,16 @@
+{
+  "manifest_version" : 2,
+
+  "version": "1.0",
+  "name" : "Note Page",
+  "description": "This extension is for the NotePage android app to assist user manage things easily",
+  "browser_action" : {
+    "default_popup" : "popup.html"
+  },
+  "permissions" : [
+    "activeTab",
+    "https://ajax.googleapis.com/",
+    "https://fonts.googleapis.com/",
+    "https://fonts.gstatic.com/"
+  ]
+}
