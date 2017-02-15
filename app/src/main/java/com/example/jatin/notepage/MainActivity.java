@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private MainListAdapter mainListAdapter;
     private Database db;
     private Menu menu;
-    SearchManager searchmanager ;
-    SearchView searchview;
+    private SearchManager searchmanager ;
+    private SearchView searchview;
+    private MenuItem searchItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,34 @@ public class MainActivity extends AppCompatActivity {
 
         //updating list
 //        mainListAdapter.notifyDataSetChanged();
+
+        FloatingActionButton addButton = (FloatingActionButton)findViewById(R.id.add);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Dialog dialog = new Dialog(MainActivity.this, R.style.DialogTheme);
+                dialog.setContentView(R.layout.add_popup_layout);
+                Button add = (Button)dialog.findViewById(R.id.add);
+                add.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String title = ((EditText) dialog.findViewById(R.id.title)).getText().toString();
+                        title.trim();
+                        if (!title.equals("") && title.length() < 200){
+                            db.addTitle(title);
+                            updateList();
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Invalid Title", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+
+
     }
 
     public void updateList(){
@@ -78,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         updateList();
+        if (searchItem != null)
+            searchItem.collapseActionView();
     }
     @Override
     public boolean onSearchRequested(){
@@ -101,10 +133,13 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         this.menu = menu;
         // set the search view and the searchable menu config
-         searchmanager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-         searchview =(SearchView) menu.findItem(R.id.search).getActionView();
+        searchmanager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchItem = menu.findItem(R.id.search);
+        searchview =(SearchView) searchItem.getActionView();
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -130,27 +165,6 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .setNegativeButton(android.R.string.no, null)
                         .show();
-                break;
-            case R.id.add:
-                final Dialog dialog = new Dialog(this, R.style.DialogTheme);
-                dialog.setContentView(R.layout.add_popup_layout);
-                Button add = (Button)dialog.findViewById(R.id.add);
-                add.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String title = ((EditText) dialog.findViewById(R.id.title)).getText().toString();
-                        title.trim();
-                        if (title!="" && title.length() < 200){
-                            db.addTitle(title);
-                            updateList();
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(MainActivity.this, "Invalid Title", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-                dialog.show();
                 break;
             case R.id.settings:
                 Intent settingdisplay = new Intent(MainActivity.this , Settings.class);
