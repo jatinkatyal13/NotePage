@@ -137,7 +137,7 @@ public class Database extends SQLiteOpenHelper{
         SQLiteDatabase database = this.getReadableDatabase();
         List<Title> list = new ArrayList<>();
 
-        String sql = "select Titles.id, title, max(Notes.id), message From Titles Left Join Notes on Titles.id = Notes.title_id group by Titles.id having title like ?% order by Titles.id;";
+        String sql = "select Titles.id, title, max(Notes.id), message From Titles Left Join Notes on Titles.id = Notes.title_id group by Titles.id having title like ?%      order by Titles.id;";
         Cursor resultSet = database.rawQuery(sql, new String[] {query});
 
         while (resultSet.moveToNext()){
