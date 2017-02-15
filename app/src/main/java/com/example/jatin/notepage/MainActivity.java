@@ -155,8 +155,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.search:
                 MenuItem search_bar =  MainActivity.this.menu.findItem(R.id.search_bar);
                 search_bar.setVisible(true);
+                // set the search view and the searchable menu config
                 SearchManager searchmanager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
                 SearchView searchview =(SearchView) menu.findItem(R.id.search).getActionView();
+                // assumes the current activity is the searchable activity
+                searchview.setSearchableInfo(searchmanager.getSearchableInfo(getComponentName()));
+                searchview.setIconifiedByDefault(false);
 
                 break;
             case R.id.search_bar :
