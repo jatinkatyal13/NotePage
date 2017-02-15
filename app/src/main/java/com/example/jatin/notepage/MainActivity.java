@@ -157,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(settingdisplay);
                 break;
 
+
+
             case R.id.search:
                 // assumes the current activity is the searchable activity
                 searchview.setSearchableInfo(searchmanager.getSearchableInfo(getComponentName()));
