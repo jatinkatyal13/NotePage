@@ -131,6 +131,21 @@ public class Database extends SQLiteOpenHelper{
         return list;
     }
 
+    //method to get the titles based on query text for title name
+    public List<Title> getTitles(String query){
+        SQLiteDatabase database = this.getReadableDatabase();
+        List<Title> list = new ArrayList<>();
+
+        String sql = "select Titles.id, title, max(Notes.id), message From Titles Left Join Notes on Titles.id = Notes.title_id group by Titles.id having title like ?%      order by Titles.id;";
+        Cursor resultSet = database.rawQuery(sql, new String[] {query});
+
+        while (resultSet.moveToNext()){
+            list.add(new Title(resultSet.getString(1), resultSet.getInt(0), resultSet.getString(3)));
+        }
+
+        return list;
+    }
+
     //method to get single title
     public Title getTitle(int id){
         Title title;
