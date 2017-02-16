@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         String title = ((EditText) dialog.findViewById(R.id.title)).getText().toString();
-                        title.trim();
+                        title = Helper.trim(title);
                         if (!title.equals("") && title.length() < 200){
                             db.addTitle(title);
                             updateList();
@@ -101,8 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(mainListAdapter);
     }
-
-
 
     @Override
     protected void onStart() {

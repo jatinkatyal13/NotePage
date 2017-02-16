@@ -1,9 +1,13 @@
 package com.example.jatin.notepage;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +42,9 @@ public class DisplayActivity extends AppCompatActivity {
     private Menu menu;
     private Database db;
     private int title_id;
+    private ImageView add_media;
+
+    private final int RESULT_LOAD_IMAGE = 1001;
 
 
     @Override
@@ -84,13 +91,26 @@ public class DisplayActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String data = message.getText().toString();
-                data.trim();
+                data = Helper.trim(data);
                 if (!data.equals("") && data.length()<200){
                     addNote(new Note(data), title_id, db);
                     message.setText("");
                 }
             }
         });
+
+        add_media = (ImageView)findViewById(R.id.add_media);
+        add_media.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, RESULT_LOAD_IMAGE);
+            }
+        });
+
+        String clip = "";
+        ClipData clipData = ClipData.newPlainText("data", clip);
+        ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(clipData);
 
     }
 
@@ -142,6 +162,17 @@ public class DisplayActivity extends AppCompatActivity {
                         })
                         .setNegativeButton(android.R.string.no, null)
                         .show();
+                break;
+            case R.id.copy:
+                List<Note> notes = displayListAdapter.getSelected();
+                int size = notes.size();
+                String clip = "";
+                for (int i=0; i<size; i++) clip+=notes.get(i).getMessage()+"\n";
+                ClipData clipData = ClipData.newPlainText("data", Helper.trim(clip));
+                Log.e("jatin", clip);
+                ((ClipboardManager)getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(clipData);
+                Toast.makeText(this, "Copied", Toast.LENGTH_SHORT).show();
+                displayListAdapter.setSelectionMode(false);
                 break;
             case R.id.all:
                 item.setVisible(false);
@@ -206,12 +237,17 @@ public class DisplayActivity extends AppCompatActivity {
 
         public void setSelectionMode(boolean mode){
             selectionMode = mode;
-            MenuItem item = DisplayActivity.this.menu.findItem(R.id.delete);
+            MenuItem itemDelete = DisplayActivity.this.menu.findItem(R.id.delete);
+            MenuItem itemCopy = DisplayActivity.this.menu.findItem(R.id.copy);
             if (mode){
-                item.setVisible(true);
+                itemDelete.setVisible(true);
+                itemCopy.setVisible(true);
             } else {
-                item.setVisible(false);
+                itemDelete.setVisible(false);
+                itemCopy.setVisible(false);
                 clearSelection();
+                int size = cards.size();
+                for (int i=0; i<size; i++) cards.get(i).setBackgroundColor(Color.parseColor("#FFFFFF"));
             }
         }
 
@@ -224,6 +260,7 @@ public class DisplayActivity extends AppCompatActivity {
         }
 
         public void clearSelection(){
+
             selected.clear();
         }
 
@@ -243,7 +280,33 @@ public class DisplayActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final DisplayListAdapter.ViewHolder holder, final int position) {
+            if (Helper.isEmail(messages.get(position).getMessage())){
+                holder.message.setTextColor(Color.parseColor("#FF3853DA"));
+                holder.message.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (selectionMode){
+                            holder.cardLayout.callOnClick();
+                        } else {
+                            String url = messages.get(position).getMessage();
+                            if (!url.startsWith("https://") && !url.startsWith("http://")){
+                                url = "http://" + url;
+                            }
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+                        }
+                    }
+                });
+                holder.message.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        holder.cardLayout.performLongClick();
+                        return true;
+                    }
+                });
+            }
             holder.message.setText(messages.get(position).getMessage());
+
             holder.cardLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

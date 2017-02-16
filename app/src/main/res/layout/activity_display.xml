@@ -27,6 +27,14 @@
         android:minHeight="48dp"
         android:background="#d7d7d7">
 
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/add_media"
+            android:clickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@android:drawable/ic_menu_add"/>
+
         <EditText
             android:id="@+id/message"
             android:layout_height="wrap_content"
